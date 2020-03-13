@@ -419,7 +419,7 @@ public class Person {
 
 ### 3.4、@PropertySource&@ImportResource
 
-**@PropertySource**：加载指定的配置文件
+**@PropertySource**：加载指定的配置文件，前提是主配置文件中没有
 
 ~~~java
 @PropertySource(value = {"classpath:person.properties"})
@@ -517,3 +517,42 @@ person.dog.age=${random.int}
 
 ## 5、Profile
 
+### 5.1、多Profile文件
+
+我们在配置文件编写的时候，文件名可以是application-(profile).properties/yml
+
+默认使用application.properties的配置
+
+### 5.2、yml支持多文档块方式
+
+~~~yaml
+server:
+  port: 8081
+spring:
+  profiles:
+    active: prod # 指定属于哪个环境
+---
+server:
+  port: 8082
+spring:
+  profiles: dev
+---
+server:
+  port: 8083
+spring:
+  profiles: prod
+~~~
+
+### 5.3、激活指定profile
+
+- 在配置文件中指定spring.profiles.active=prod
+
+- 命令行方式激活：
+
+  ​	在启动时设置启动项Program arguments：--spring.profiles.active=dev即可使用该配置，优先级高于配置文件中的配置，也可以在运行jar包时，使用java -jar *.jar --spring.profiles.active=dev/prod
+
+- 虚拟机参数
+
+  ​	-Dspring.profiles.active=dev
+
+  
