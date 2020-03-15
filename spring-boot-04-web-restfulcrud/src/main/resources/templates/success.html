@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+</head>
+<body>
+	<h2>成功</h2>
+	<hr>
+	<!-- 将div里面的文本内容设置为文本 -->
+	<div th:text="${hello}">内容</div>
+	<!--utext不会转义特殊字符-->
+	<div th:utext="${hello}">内容</div>
+	<hr>
+	<!--th:each每次遍历都会生成当前这个标签，3个h4-->
+	<h4 th:each="user: ${users}" th:text="${user}"></h4>
+	<hr>
+	<h4>
+		<span th:each="user: ${users}" th:text="${user}"></span>
+
+		<!--效果同上-->
+		<!--<span th:each="user: ${users}">[[ ${user}]]</span>-->
+
+		<!--同理要想替换th:utext  可以使用[(${}})]-->
+	</h4>
+</body>
+</html>
