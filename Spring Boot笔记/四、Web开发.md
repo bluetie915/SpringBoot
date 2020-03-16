@@ -213,24 +213,90 @@ Special tokens:
 
 ## 4、SpringMVC自动配置
 
+### 4.1、SpringMVC auto-configuration
+
 <https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/html/spring-boot-features.html#boot-features-developing-web-applications> 
 
-- #### 7.1.1. Spring MVC Auto-configuration
+**Spring MVC Auto-configuration**
 
-  SpringBoot自动配置好了SpringMVC，以下是对SpringMVC的默认配置：
+SpringBoot自动配置好了SpringMVC，以下是对SpringMVC的默认配置：
 
-  Spring Boot provides auto-configuration for Spring MVC that works well with most applications.
+Spring Boot provides auto-configuration for Spring MVC that works well with most applications.
 
-  The auto-configuration adds the following features on top of Spring’s defaults:
+The auto-configuration adds the following features on top of Spring’s defaults:
 
-  - Inclusion of `ContentNegotiatingViewResolver` and `BeanNameViewResolver` beans.
-    - 自动配置了ViewResolver（视图解析器：根据方法的返回值得到视图对象(View)，视图对象决定如何渲染（转发&重定向））
-    - `ContentNegotiatingViewResolver`：组件视图解析器
-    - 如何定制：我们可以自己给容器中添加一个视图解析器，自动的将其组合进来
-  - Support for serving static resources, including support for WebJars (covered [later in this document](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-mvc-static-content))).
-  - Automatic registration of `Converter`, `GenericConverter`, and `Formatter` beans.
-  - Support for `HttpMessageConverters` (covered [later in this document](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-mvc-message-converters)).
-  - Automatic registration of `MessageCodesResolver` (covered [later in this document](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-message-codes)).
-  - Static `index.html` support.（静态首页访问）
-  - Custom `Favicon` support (covered [later in this document](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-mvc-favicon)).（favicon.ico）
-  - Automatic use of a `ConfigurableWebBindingInitializer` bean (covered [later in this document](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-mvc-web-binding-initializer)).
+- Inclusion of `ContentNegotiatingViewResolver` and `BeanNameViewResolver` beans.
+  - 自动配置了ViewResolver（视图解析器：根据方法的返回值得到视图对象(View)，视图对象决定如何渲染（转发&重定向））
+  - `ContentNegotiatingViewResolver`：组件视图解析器
+  - 如何定制：我们可以自己给容器中添加一个视图解析器，自动的将其组合进来
+- Support for serving static resources, including support for WebJars (covered [later in this document](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-mvc-static-content))).（静态资源文件夹路径webjars）
+- Automatic registration of `Converter`, `GenericConverter`, and `Formatter` beans.（自动注册Converter，GenericConverter）
+  - Converter：转换器，类型转换使用Converter
+  - GenericConverter：格式化器，2017.12.12===date
+- Support for `HttpMessageConverters` (covered [later in this document](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-mvc-message-converters)).
+  - `HttpMessageConverters` ：消息转换器：SpringMVC用来请求和响应的User-->json，它是从容器中确定，
+  - 获取所有的`HttpMessageConverters` ，自己 给容器中添加`HttpMessageConverters` ，只需要将自己组件放在容器中
+- Automatic registration of `MessageCodesResolver` (covered [later in this document](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-message-codes)).
+- Static `index.html` support.（静态首页访问）
+- Custom `Favicon` support (covered [later in this document](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-mvc-favicon)).（favicon.ico）
+- Automatic use of a `ConfigurableWebBindingInitializer` bean (covered [later in this document](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-mvc-web-binding-initializer)).
+  - 我们可以配置一个ConfiguratbleWebBindingInitializer来替换默认的（添加到容器）
+
+org.springframework.boot.autoconfigure.web：web的所有自动场景
+
+### 4.2、扩展SpringMVC
+
+![1584242450237](C:\Users\张艺成\AppData\Local\Temp\1584242450237.png)
+
+**编写一个配置类（@Configuration），是WebMvcConfigurerAdapter类型，不能标注：@EnableWebMvc**
+
+既保留了所有的自动配置，也能用我们扩展的配置
+
+~~~java
+//使用WebMvcConfigurerAdapter可以来扩展SpringMVC的功能
+@Configuration
+public class MyMvcConfig extends WebMvcConfigurerAdapter {
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+//        super.addViewControllers(registry);
+//        浏览器发送yicheng请求也来到success页面
+        registry.addViewController("/yicheng").setViewName("success");
+    }
+}
+
+~~~
+
+原理：
+
+1. WebMvcAutoConfiguration是SpringMVC的自动配置类
+2. 在做其他自动配置时会导入，@Import(EnableWebMvcConfiguration.class)
+
+![1584243260342](C:\Users\张艺成\AppData\Local\Temp\1584243260342.png)
+
+3. 容器中所有的WebMvcConofugurer都会一起起作用
+
+4. 我们的配置类也会被调用
+
+   效果：SpringMVC的自动配置和我们的扩展配置都会起作用
+
+### 4.3、全面接管SpringMVC
+
+SpringBoot对SpringMVC的自动配置不需要了，所有的都是我们自己配，**我们需要在配置类中添加@EnableWebMvc即可**。
+
+![1584243526855](C:\Users\张艺成\AppData\Local\Temp\1584243526855.png)
+
+原理：
+
+​	为什么@EnableWebMvc自动配置就失效了？
+
+![1584243804946](C:\Users\张艺成\AppData\Local\Temp\1584243804946.png)
+
+总结：@EnableWebMvc将WebMvcConfigurationSupport组件导入进来，导入的WebMvcConfigurationSupport只是SpringMVC基本功能 。
+
+## 5、如何修改SpringBoot的默认配置
+
+模式：
+
+1. SpringBoot在自动配置很多组件的时候，先看看容器中有没有用户自己配置的（@Bean、@Component），如果有就用用户配置的，才自动配置；如果有些组件可以有多个（ViewResolver）将用户的配置和自己默认的组件起来。
+2. 在SpringBoot中会有非常多的×××Configurer帮助我们进行扩展配置
