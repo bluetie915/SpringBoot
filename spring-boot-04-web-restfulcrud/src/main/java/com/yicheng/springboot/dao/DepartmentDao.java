@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.atguigu.springboot.entities.Department;
+import com.yicheng.springboot.entities.Department;
 import org.springframework.stereotype.Repository;
 
 
