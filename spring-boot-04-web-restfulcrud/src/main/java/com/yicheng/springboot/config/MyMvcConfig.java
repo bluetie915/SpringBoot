@@ -1,5 +1,7 @@
 package com.yicheng.springboot.config;
 
+import com.yicheng.springboot.component.MyLocaleResolver;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
@@ -23,8 +25,14 @@ public class MyMvcConfig extends WebMvcConfigurerAdapter {
             public void addViewControllers(ViewControllerRegistry registry) {
                 registry.addViewController("/").setViewName("login");
                 registry.addViewController("/login.html").setViewName("login");
+                registry.addViewController("/index.html").setViewName("login");
             }
         };
         return adapter;
+    }
+
+    @Bean
+    public LocaleResolver localResolver() {
+        return new MyLocaleResolver();
     }
 }

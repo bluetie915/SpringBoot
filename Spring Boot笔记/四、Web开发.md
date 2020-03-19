@@ -300,3 +300,77 @@ SpringBoot对SpringMVC的自动配置不需要了，所有的都是我们自己�
 
 1. SpringBoot在自动配置很多组件的时候，先看看容器中有没有用户自己配置的（@Bean、@Component），如果有就用用户配置的，才自动配置；如果有些组件可以有多个（ViewResolver）将用户的配置和自己默认的组件起来。
 2. 在SpringBoot中会有非常多的×××Configurer帮助我们进行扩展配置
+
+## 6、RestfulCRUD
+
+### 1.默认访问首页
+
+~~~java
+@Bean
+    public WebMvcConfigurerAdapter webMvcConfigurerAdapter() {
+        WebMvcConfigurerAdapter adapter = new WebMvcConfigurerAdapter() {
+            @Override
+            public void addViewControllers(ViewControllerRegistry registry) {
+                registry.addViewController("/").setViewName("login");
+                registry.addViewController("/login.html").setViewName("login");
+            }
+        };
+        return adapter;
+    }
+~~~
+
+#### 2.国际化
+
+1. 编写国际化配置文件
+2. 使用ResourceBundleMessageSource管理国际化资源文件
+3. 在页面使用fmt:message取出国际化内容
+
+![1584524669763](C:\Users\张艺成\AppData\Local\Temp\1584524669763.png)
+
+4. 去页面获取国际化的值
+
+~~~html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<title>Signin Template for Bootstrap</title>
+	<!-- Bootstrap core CSS -->
+	<link href="asserts/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.4.1-1/css/bootstrap.css}" rel="stylesheet">
+	<!-- Custom styles for this template -->
+	<link href="asserts/css/signin.css" th:href="@{/asserts/css/signin.css}" rel="stylesheet">
+</head>
+<body class="text-center">
+<form class="form-signin" action="dashboard.html" th:action="@{/user/login}" method="post">
+	<img class="mb-4" th:src="@{/asserts/img/bootstrap-solid.svg}" src="asserts/img/bootstrap-solid.svg" alt="" width="72"
+			 height="72">
+	<h1 class="h3 mb-3 font-weight-normal" th:text="#{login.tip}">Please sign in</h1>
+	<!--判断-->
+	<p style="color: red" th:text="${msg}" th:if="${not #strings.isEmpty(msg)}"></p>
+	<label class="sr-only" th:text="#{login.username}">Username</label>
+	<input type="text" name="username" class="form-control" placeholder="Username" th:placeholder="#{login.username}"
+				 required="" autofocus="">
+	<label class="sr-only" th:text="#{login.password}">Password</label>
+	<input type="password" name="password" class="form-control" placeholder="Password" th:placeholder="#{login.password}"
+				 required="">
+	<div class="checkbox mb-3">
+		<label>
+			<input type="checkbox" value="remember-me"/> [[#{login.remember}]]
+		</label>
+	</div>
+	<button class="btn btn-lg btn-primary btn-block" type="submit" th:text="#{login.btn}">Sign in</button>
+	<p class="mt-5 mb-3 text-muted">© 2017-2018</p>
+	<a class="btn btn-sm" th:href="@{/index.html(l='zh_CN')}">中文</a>
+	<a class="btn btn-sm" th:href="@{/index.html(l='en_US')}">English</a>
+</form>
+</body>
+
+</html>
+~~~
+
+效果：根据浏览器语言设置的信息切换了国际化
+
+原理：国际化Locale（区域信息对象）
